@@ -143,6 +143,7 @@ void AP_Notify::add_backends(void)
     ADD_BACKEND(new ToshibaLED_I2C(TOSHIBA_LED_I2C_BUS_INTERNAL));
     ADD_BACKEND(new ToneAlarm_PX4());
     ADD_BACKEND(new Display());
+    ADD_BACKEND(new UAVCAN_RGB_LED(0));
 
     // Oreo LED enable/disable by NTF_OREO_THEME parameter
     if (_oreo_theme) {

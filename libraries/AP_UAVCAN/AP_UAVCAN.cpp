@@ -189,6 +189,18 @@ static void gnss_fix_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_gps_state(msg.getSrcNodeID().get());
+    static uint32_t tnow1 = AP_HAL::micros();
+	if ((AP_HAL::millis() - tnow1) > 220)
+	{
+		uint32_t ms = AP_HAL::millis();
+		printf("gps fix delta_time:%d %2dh %2dm %2ds %3dms \n",
+				ms - tnow1,
+				(ms / 1000 / 60 / 60) & 0x3b,
+				(ms / 1000 / 60) & 0x3b,
+				(ms / 1000) & 0x3b,
+				ms & 0x3e7);
+		}
+	tnow1 = AP_HAL::millis();
 }
 
 static void gnss_fix_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::gnss::Fix>& msg)
@@ -217,6 +229,19 @@ static void gnss_aux_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
     if (!uavcan::isNaN(msg.vdop)) {
         state->vdop = msg.vdop * 100.0;
     }
+
+    static uint32_t tnow1 = AP_HAL::micros();
+    if ((AP_HAL::millis() - tnow1) > 220)
+    {
+    	uint32_t ms = AP_HAL::millis();
+    	printf("gps aux delta_time:%d %2dh %2dm %2ds %3dms \n",
+    			ms - tnow1,
+				(ms / 1000 / 60 / 60) & 0x3b,
+				(ms / 1000 / 60) & 0x3b,
+				(ms / 1000) & 0x3b,
+				ms & 0x3e7);
+    }
+    tnow1 = AP_HAL::millis();
 }
 
 static void gnss_aux_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::gnss::Auxiliary>& msg)
@@ -271,6 +296,19 @@ static void magnetic_cb_2(const uavcan::ReceivedDataStructure<uavcan::equipment:
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_mag_state(msg.getSrcNodeID().get(), msg.sensor_id);
+    static uint32_t tnow1 = AP_HAL::micros();
+    if ((AP_HAL::millis() - tnow1) > 28)
+    {
+    	uint32_t ms = AP_HAL::millis();
+    	printf("mag id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
+    			msg.sensor_id,
+    			ms - tnow1,
+				(ms / 1000 / 60 / 60) & 0x3b,
+				(ms / 1000 / 60) & 0x3b,
+				(ms / 1000) & 0x3b,
+				ms & 0x3e7);
+    }
+    tnow1 = AP_HAL::millis();
 }
 
 static void magnetic_cb_2_0(const uavcan::ReceivedDataStructure<uavcan::equipment::ahrs::MagneticFieldStrength2>& msg)
@@ -351,6 +389,18 @@ static void battery_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_bi_state((uint16_t) msg.battery_id);
+
+    static uint32_t tnow1 = AP_HAL::micros();
+	{
+    	uint32_t ms = AP_HAL::millis();
+    	printf("air_speed delta_time:%d %2dh %2dm %2ds %3dms \n",
+    			ms - tnow1,
+    			(ms / 1000 / 60 / 60) & 0x3b,
+    			(ms / 1000 / 60) & 0x3b,
+    			(ms / 1000) & 0x3b,
+    			ms & 0x3e7);
+	}
+	tnow1 = AP_HAL::millis();
 }
 
 static void battery_info_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::power::BatteryInfo>& msg)
@@ -381,6 +431,18 @@ static void airdata_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
     msg.covariance.unpackSquareMatrix(state->covariance);
     
     ap_uavcan->update_airspeed_state(msg.getSrcNodeID().get());
+    static uint32_t tnow1 = AP_HAL::micros();
+    if ((AP_HAL::millis() - tnow1) > 58)
+    {
+    	uint32_t ms = AP_HAL::millis();
+    	printf("air_speed delta_time:%d %2dh %2dm %2ds %3dms \n",
+    			ms - tnow1,
+				(ms / 1000 / 60 / 60) & 0x3b,
+				(ms / 1000 / 60) & 0x3b,
+				(ms / 1000) & 0x3b,
+				ms & 0x3e7);
+    }
+    tnow1 = AP_HAL::millis();
 }
 
 static void airdata_info_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::air_data::RawAirData>& msg)
@@ -389,6 +451,103 @@ static void airdata_info_st_cb1(const uavcan::ReceivedDataStructure<uavcan::equi
 {   airdata_info_st_cb(msg, 1); }
 static void (*airdata_info_st_cb_arr[2])(const uavcan::ReceivedDataStructure<uavcan::equipment::air_data::RawAirData>& msg)
         = { airdata_info_st_cb0, airdata_info_st_cb1 };
+
+static void servo_status_st_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::actuator::Status>& msg, uint8_t mgr)
+{
+    AP_UAVCAN *ap_uavcan = AP_UAVCAN::get_uavcan(mgr);
+    if (ap_uavcan == nullptr) {
+        return;
+    }
+
+    static uint8_t id[4]={0};
+
+    for(uint8_t i=0;i<4;i++)
+    {
+    	if(id[i] != msg.actuator_id && id[i]==0)
+    	{
+    		id[i] = msg.actuator_id;
+    		break;
+    	}
+    }
+
+
+    if(msg.actuator_id == id[0])
+    {
+    	static uint32_t tnow1 = AP_HAL::micros();
+
+    	if((AP_HAL::millis()-tnow1)>30)
+    	{
+    		uint32_t ms=AP_HAL::millis();
+    		printf("servo id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
+    				msg.actuator_id,
+    				ms-tnow1,
+    				(ms/1000/60/60)&0x3b,
+    				(ms/1000/60)&0x3b,
+    				(ms/1000)&0x3b,
+    				ms&0x3e7);
+    	}
+    	tnow1=AP_HAL::millis();
+    }
+
+    if(msg.actuator_id == id[1])
+    {
+    	static uint32_t tnow2 = AP_HAL::micros();
+
+    	if((AP_HAL::millis()-tnow2)>30)
+    	{
+    		uint32_t ms=AP_HAL::millis();
+    		printf("servo id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
+    				msg.actuator_id,
+    				ms-tnow2,
+    				(ms/1000/60/60)&0x3b,
+    				(ms/1000/60)&0x3b,
+    				(ms/1000)&0x3b,
+    				ms&0x3e7);
+    	}
+    	tnow2=AP_HAL::millis();
+    }
+    if(msg.actuator_id == id[2])
+    {
+    	static uint32_t tnow3 = AP_HAL::micros();
+
+    	if((AP_HAL::millis()-tnow3)>30)
+    	{
+    		uint32_t ms=AP_HAL::millis();
+    		printf("servo id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
+    				msg.actuator_id,
+    				ms-tnow3,
+    				(ms/1000/60/60)&0x3b,
+    				(ms/1000/60)&0x3b,
+    				(ms/1000)&0x3b,
+    				ms&0x3e7);
+    	}
+    	tnow3=AP_HAL::millis();
+    }
+    if(msg.actuator_id == id[3])
+    {
+    	static uint32_t tnow4 = AP_HAL::micros();
+
+    	if((AP_HAL::millis()-tnow4)>30)
+    	{
+    		uint32_t ms=AP_HAL::millis();
+    		printf("servo id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
+    				msg.actuator_id,
+    				ms-tnow4,
+    				(ms/1000/60/60)&0x3b,
+    				(ms/1000/60)&0x3b,
+    				(ms/1000)&0x3b,
+    				ms&0x3e7);
+    	}
+    	tnow4=AP_HAL::millis();
+    }
+}
+
+static void servo_status_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::actuator::Status>& msg)
+{   servo_status_st_cb(msg, 0); }
+static void servo_status_st_cb1(const uavcan::ReceivedDataStructure<uavcan::equipment::actuator::Status>& msg)
+{   servo_status_st_cb(msg, 1); }
+static void (*servo_status_st_cb_arr[2])(const uavcan::ReceivedDataStructure<uavcan::equipment::actuator::Status>& msg)
+        = { servo_status_st_cb0, servo_status_st_cb1 };
 
 // publisher interfaces
 static uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>* act_out_array[MAX_NUMBER_OF_CAN_DRIVERS];
@@ -583,6 +742,14 @@ bool AP_UAVCAN::try_init(void)
     const int battery_info_start_res = battery_info_st->start(battery_info_st_cb_arr[_uavcan_i]);
     if (battery_info_start_res < 0) {
         debug_uavcan(1, "UAVCAN BatteryInfo subscriber start problem\n\r");
+        return false;
+    }
+
+    uavcan::Subscriber<uavcan::equipment::actuator::Status> *servo_status_st;
+    servo_status_st = new uavcan::Subscriber<uavcan::equipment::actuator::Status>(*node);
+    const int servo_status_start_res = servo_status_st->start(servo_status_st_cb_arr[_uavcan_i]);
+    if (servo_status_start_res < 0) {
+        debug_uavcan(1, "UAVCAN servo status subscriber start problem\n\r");
         return false;
     }
 
