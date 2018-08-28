@@ -469,6 +469,19 @@ void Plane::handle_auto_mode(void)
 void Plane::update_flight_mode(void)
 {
     enum FlightMode effective_mode = control_mode;
+
+#if 0
+    if(control_mode != MANUAL)
+    {
+    	control_mode=effective_mode = MANUAL;
+    }
+#else
+    if(control_mode != STABILIZE)
+    {
+    	control_mode=effective_mode = STABILIZE;
+    }
+#endif
+
     if (control_mode == AUTO && g.auto_fbw_steer == 42) {
         effective_mode = FLY_BY_WIRE_A;
     }
