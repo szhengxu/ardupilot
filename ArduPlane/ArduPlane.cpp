@@ -475,11 +475,28 @@ void Plane::update_flight_mode(void)
     {
     	control_mode=effective_mode = MANUAL;
     }
-#else
+#endif
+
+#if 0
     if(control_mode != STABILIZE)
     {
     	control_mode=effective_mode = STABILIZE;
     }
+#endif
+
+#if 1
+	static uint32_t now = millis();
+
+	if((millis()-now)<3000)
+	{
+		control_mode=effective_mode = STABILIZE;
+	}else if((millis()-now)<6000)
+	{
+		control_mode=effective_mode = QSTABILIZE;
+	}else
+	{
+		now = millis();
+	}
 #endif
 
     if (control_mode == AUTO && g.auto_fbw_steer == 42) {
