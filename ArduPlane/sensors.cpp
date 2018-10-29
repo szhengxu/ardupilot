@@ -47,6 +47,22 @@ void Plane::compass_cal_update() {
 }
 
 /*
+  actuator status update
+*/
+void Plane::actuator_status_update() {
+
+	float position[4];
+	uint8_t ch_num[4];
+
+	for(uint8_t i=0;i<ACTUATORSTATUS_MAX_SENSORS;i++){
+		actuatorstatus.get_position(i, position[i],ch_num[i]);
+	}
+
+	if (should_log(MASK_LOG_ACTUATOR_STATUS)) {
+		DataFlash.Log_Write_Actuator_Status(actuatorstatus);
+	}
+}
+/*
     Accel calibration
 */
 void Plane::accel_cal_update() {

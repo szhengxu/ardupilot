@@ -47,6 +47,7 @@
 #include <AP_Relay/AP_Relay.h>       // APM relay
 #include <AP_Camera/AP_Camera.h>          // Photo or video camera
 #include <AP_Airspeed/AP_Airspeed.h>
+#include <AP_ActuatorStatus/AP_ActuatorStatus.h>
 #include <AP_Terrain/AP_Terrain.h>
 #include <AP_RPM/AP_RPM.h>
 #include <AP_Stats/AP_Stats.h>     // statistics library
@@ -409,6 +410,9 @@ private:
  
     // Airspeed Sensors
     AP_Airspeed airspeed;
+
+    // Actuator Status
+    AP_ActuatorStatus actuatorstatus;
 
     // ACRO controller state
     struct {
@@ -946,6 +950,7 @@ private:
     void update_alt(void);
     void afs_fs_check(void);
     void compass_cal_update();
+    void actuator_status_update(void);
     void update_optical_flow(void);
     void one_second_loop(void);
     void airspeed_ratio_update(void);

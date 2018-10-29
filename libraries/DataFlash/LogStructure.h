@@ -319,6 +319,25 @@ struct PACKED log_RCOUT {
     uint16_t chan14;
 };
 
+struct PACKED log_ACTUATORSTATUS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float chan1;
+    float chan2;
+    float chan3;
+    float chan4;
+    float chan5;
+    float chan6;
+    float chan7;
+    float chan8;
+    float chan9;
+    float chan10;
+    float chan11;
+    float chan12;
+    float chan13;
+    float chan14;
+};
+
 struct PACKED log_RSSI {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -1206,6 +1225,8 @@ Format characters in the format string for binary log messages
       "RCIN",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------" }, \
     { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
       "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------"  }, \
+    { LOG_ACTUATORSTATUS_MSG, sizeof(log_ACTUATORSTATUS), \
+      "RCCB",  "Qffffffffffffff",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14", "sYYYYYYYYYYYYYY", "F--------------"  }, \
     { LOG_RSSI_MSG, sizeof(log_RSSI), \
       "RSSI",  "Qf",     "TimeUS,RXRSSI", "s-", "F-"  }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
@@ -1493,6 +1514,7 @@ enum LogMessages : uint8_t {
     LOG_MESSAGE_MSG,
     LOG_RCIN_MSG,
     LOG_RCOUT_MSG,
+    LOG_ACTUATORSTATUS_MSG,
     LOG_RSSI_MSG,
     LOG_IMU2_MSG,
     LOG_BARO_MSG,

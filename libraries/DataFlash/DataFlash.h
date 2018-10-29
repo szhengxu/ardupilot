@@ -23,6 +23,7 @@
 #include <AP_Beacon/AP_Beacon.h>
 #include <AP_Proximity/AP_Proximity.h>
 #include <AP_InertialSensor/AP_InertialSensor_Backend.h>
+#include <AP_ActuatorStatus/AP_ActuatorStatus.h>
 
 #include <stdint.h>
 
@@ -112,6 +113,7 @@ public:
     void Log_Write_Vibration();
     void Log_Write_RCIN(void);
     void Log_Write_RCOUT(void);
+    void Log_Write_Actuator_Status(AP_ActuatorStatus &actuatorstatus);
     void Log_Write_RSSI(AP_RSSI &rssi);
     void Log_Write_Baro(uint64_t time_us=0);
     void Log_Write_Power(void);

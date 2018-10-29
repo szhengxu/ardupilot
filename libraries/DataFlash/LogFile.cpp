@@ -11,6 +11,7 @@
 #include <AC_AttitudeControl/AC_AttitudeControl.h>
 #include <AC_AttitudeControl/AC_PosControl.h>
 #include <AP_RangeFinder/RangeFinder_Backend.h>
+#include <AP_ActuatorStatus/AP_ActuatorStatus.h>
 
 #include "DataFlash.h"
 #include "DataFlash_File.h"
@@ -1500,6 +1501,47 @@ void DataFlash_Class::Log_Write_Compass(uint64_t time_us)
     if (compass.get_count() > 2) {
         Log_Write_Compass_instance(time_us, 2, LOG_COMPASS3_MSG);
     }
+}
+
+// Write a Compass packet
+void DataFlash_Class::Log_Write_Actuator_Status(AP_ActuatorStatus &actuatorstatus)
+{
+	float ch_data[14]={0},position;
+	uint8_t ch_num;
+	bool not_write=true;
+
+	for(uint8_t i=0;i<ACTUATORSTATUS_MAX_SENSORS;i++){
+		if(actuatorstatus.get_position(i, position, ch_num))
+		{
+			ch_data[ch_num-1]=position;
+			not_write=false;
+		}
+	}
+
+	if(not_write)
+	{
+		return;
+	}
+
+	struct log_ACTUATORSTATUS pkt = {
+	       LOG_PACKET_HEADER_INIT(LOG_ACTUATORSTATUS_MSG),
+	       time_us       : AP_HAL::micros64(),
+	       chan1         : ch_data[0],
+	       chan2         : ch_data[1],
+	       chan3         : ch_data[2],
+	       chan4         : ch_data[3],
+	       chan5         : ch_data[4],
+	       chan6         : ch_data[5],
+	       chan7         : ch_data[6],
+	       chan8         : ch_data[7],
+	       chan9         : ch_data[8],
+	       chan10        : ch_data[9],
+	       chan11        : ch_data[10],
+	       chan12        : ch_data[11],
+	       chan13        : ch_data[12],
+	       chan14        : ch_data[13]
+	};
+	WriteBlock(&pkt, sizeof(pkt));
 }
 
 // Write a mode packet.

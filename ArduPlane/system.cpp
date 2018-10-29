@@ -133,6 +133,9 @@ void Plane::init_ardupilot()
     // initialise airspeed sensor
     airspeed.init();
 
+    // initialise actuator status callback
+    actuatorstatus.init();
+
     if (g.compass_enabled==true) {
         bool compass_ok = compass.init() && compass.read();
 #if HIL_SUPPORT
