@@ -111,6 +111,7 @@ public:
     void        send_text(MAV_SEVERITY severity, const char *fmt, ...);
     void        send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list);
     void        data_stream_send();
+    void 		data96_send(uint8_t *data,uint8_t length);
     void        queued_param_send();
     void        queued_waypoint_send();
     // packetReceived is called on any successful decode of a mavlink message
@@ -611,6 +612,7 @@ public:
     // push send_message() messages and queued statustext messages etc:
     void retry_deferred();
     void data_stream_send();
+    void data96_send(uint8_t *data,uint8_t length);
     void update();
     virtual void setup_uarts(AP_SerialManager &serial_manager);
 

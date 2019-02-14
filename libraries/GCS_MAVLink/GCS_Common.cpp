@@ -1352,6 +1352,15 @@ void GCS::data_stream_send()
     }
 }
 
+void GCS::data96_send(uint8_t *data,uint8_t length)
+{
+    for (uint8_t i=0; i<num_gcs(); i++) {
+        if (chan(i).initialised) {
+            chan(i).data96_send(data,length);
+        }
+    }
+}
+
 void GCS::update(void)
 {
     for (uint8_t i=0; i<num_gcs(); i++) {
@@ -2084,7 +2093,7 @@ void GCS_MAVLINK::handle_set_gps_global_origin(const mavlink_message_t *msg)
  */
 void GCS_MAVLINK::handle_data_packet(mavlink_message_t *msg)
 {
-#if HAL_RCINPUT_WITH_AP_RADIO
+#if HAL_RCINPUT_WITH_AP_RADIO && 0
     mavlink_data96_t m;
     mavlink_msg_data96_decode(msg, &m);
     switch (m.type) {
@@ -2101,6 +2110,20 @@ void GCS_MAVLINK::handle_data_packet(mavlink_message_t *msg)
         // unknown
         break;
     }
+#endif
+
+#if 1
+	mavlink_data96_t data96;
+	mavlink_msg_data96_decode(msg, &data96);
+
+	AP_SerialManager *serial_manager = AP_SerialManager::get_instance();
+	if (serial_manager != 0) {
+		AP_HAL::UARTDriver *uart_tx;
+		uart_tx = serial_manager->find_serial(AP_SerialManager::SerialProtocol_DATA96_UART_SEND, 0);
+		if (uart_tx != nullptr) {
+				uart_tx->write(data96.data, data96.len);
+			}
+	}
 #endif
 }
 
@@ -3172,6 +3195,11 @@ void GCS_MAVLINK::data_stream_send(void)
             break;
         }
     }
+}
+
+void GCS_MAVLINK::data96_send(uint8_t *data,uint8_t length)
+{
+	mavlink_msg_data96_send(chan, 0xAA, length, data);
 }
 
 /*

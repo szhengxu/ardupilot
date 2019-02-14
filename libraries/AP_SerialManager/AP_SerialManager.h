@@ -101,6 +101,7 @@ public:
         SerialProtocol_Sbus1 = 15,
         SerialProtocol_ESCTelemetry = 16,
         SerialProtocol_Devo_Telem = 17,
+        SerialProtocol_DATA96_UART_SEND = 20,
     };
 
     // get singleton instance

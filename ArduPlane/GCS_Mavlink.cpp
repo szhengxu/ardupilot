@@ -1546,6 +1546,39 @@ void Plane::gcs_data_stream_send(void)
 void Plane::gcs_update(void)
 {
     gcs().update();
+
+    //process uart rx to gcs
+    AP_HAL::UARTDriver *uart_rx;
+    static uint8_t tx_delay = 0;
+    static uint16_t last_count = 0;
+
+    uart_rx = serial_manager.find_serial(AP_SerialManager::SerialProtocol_DATA96_UART_SEND, 0);
+
+    if (uart_rx != nullptr) {
+		uint16_t uart_count = uart_rx->available();
+
+		if ((uart_count > 0 && uart_count == last_count) || uart_count > 96) {
+			tx_delay++;
+		} else {
+			tx_delay = 0;
+			last_count = uart_count;
+		}
+
+		if (tx_delay > 1) {
+			uint8_t data96[96] = { 0 };
+
+			if (uart_count > 96) {
+				uart_count = 96;
+			}
+
+			for (uint16_t i = 0; i < uart_count; i++) {
+				data96[i] = uart_rx->read();
+			}
+			gcs().data96_send(data96,uart_count);
+			last_count = 0;
+		}
+	}
+
 }
 
 /*
