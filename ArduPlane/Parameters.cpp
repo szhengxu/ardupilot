@@ -243,6 +243,13 @@ const AP_Param::Info Plane::var_info[] = {
     // @User: Advanced
     GSCALAR(m_alt_offset, "M_ALT_OFFSET",                 0),
 
+    // @Param: USER_LOCK
+    // @DisplayName: User lock parameter
+    // @Description: lock_time=USER_LOCK & 0x1FFF, gps_lock_state=(data&0xE000) >>13;
+    // @Values: 0:default
+    // @User: Advanced
+    GSCALAR(user_lock, "USER_LOCK",                 0),
+
     // @Param: ALT_OFFSET
     // @DisplayName: Altitude offset
     // @Description: This is added to the target altitude in automatic flight. It can be used to add a global altitude offset to a mission

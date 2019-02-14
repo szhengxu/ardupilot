@@ -944,6 +944,7 @@ private:
     void compass_accumulate(void);
     void compass_cal_update();
     void update_optical_flow(void);
+    void user_lock_check(void);
     void one_second_loop(void);
     void airspeed_ratio_update(void);
     void compass_save(void);

@@ -345,6 +345,8 @@ public:
 
         k_param_DataFlash = 253, // Logging Group
 
+        k_param_user_lock,
+
         // 254,255: reserved
     };
 
@@ -439,6 +441,7 @@ public:
     // Navigational maneuvering limits
     //
     AP_Int16 m_alt_offset;
+    AP_Int32 user_lock;
     AP_Int16 alt_offset;
     AP_Int16 acro_roll_rate;
     AP_Int16 acro_pitch_rate;

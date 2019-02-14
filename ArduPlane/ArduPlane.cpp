@@ -247,8 +247,42 @@ void Plane::afs_fs_check(void)
     afs.check(failsafe.last_heartbeat_ms, geofence_breached(), failsafe.AFS_last_valid_rc_ms);
 }
 
+void Plane::user_lock_check()
+{
+	char key[AP_MAX_NAME_SIZE+1]={0};
+    uint32_t data = g.user_lock;
+    uint16_t now_week=gps.time_week();
+
+    uint16_t  lock_week = data & 0x1FFF;
+    uint8_t   state = (data&0xE000) >>13;
+
+    //over time
+    if(now_week > lock_week && state==1 && arming.is_armed()==0 )
+    {
+    	state=0;
+    	data = (data & 0x1FFF) | ((uint32_t)state<<13 );
+    	memset(key,0,AP_MAX_NAME_SIZE+1);
+    	strcpy(key, "USER_LOCK");
+    	AP_Param::set_and_save_by_name(key, data);
+    }
+
+    //handle lock
+    if(state==0)
+    {
+    	memset(key,0,AP_MAX_NAME_SIZE+1);
+    	strcpy(key, "GPS_TYPE");
+    	AP_Param::set_by_name(key, 0);
+    	memset(key,0,AP_MAX_NAME_SIZE+1);
+    	strcpy(key, "GPS_TYPE2");
+    	AP_Param::set_by_name(key, 0);
+    }
+}
+
 void Plane::one_second_loop()
 {
+	//check user license
+	user_lock_check();
+
     // send a heartbeat
     gcs().send_message(MSG_HEARTBEAT);
 

@@ -247,6 +247,14 @@ void GCS_MAVLINK::handle_param_set(mavlink_message_t *msg)
     strncpy(key, (char *)packet.param_id, AP_MAX_NAME_SIZE);
     key[AP_MAX_NAME_SIZE] = 0;
 
+    //Avoid user_lock parameter updates
+    char user_lock[AP_MAX_NAME_SIZE+1]={"USER_LOCK"};
+    user_lock[AP_MAX_NAME_SIZE] = 0;
+    if(strcmp(key,user_lock)==0)
+    {
+    	return;
+    }
+
     // find existing param so we can get the old value
     vp = AP_Param::find(key, &var_type);
     if (vp == nullptr) {

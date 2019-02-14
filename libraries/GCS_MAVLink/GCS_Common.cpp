@@ -2112,19 +2112,101 @@ void GCS_MAVLINK::handle_data_packet(mavlink_message_t *msg)
     }
 #endif
 
-#if 1
-	mavlink_data96_t data96;
-	mavlink_msg_data96_decode(msg, &data96);
+    mavlink_data96_t data;
+    mavlink_msg_data96_decode(msg, &data);
 
-	AP_SerialManager *serial_manager = AP_SerialManager::get_instance();
-	if (serial_manager != 0) {
-		AP_HAL::UARTDriver *uart_tx;
-		uart_tx = serial_manager->find_serial(AP_SerialManager::SerialProtocol_DATA96_UART_SEND, 0);
-		if (uart_tx != nullptr) {
-				uart_tx->write(data96.data, data96.len);
+	uint8_t save_p,type1,type2;
+	uint32_t lock_stat,id;
+    char key[AP_MAX_NAME_SIZE+1]={0};
+
+	switch (data.type) {
+	case 100:
+		AP_Param *vp;
+		float old_value;
+		enum ap_var_type var_type;
+
+		//get user_lock_state value
+		memset(key, 0, AP_MAX_NAME_SIZE + 1);
+		strcpy(key, "USER_LOCK");
+		var_type=AP_PARAM_INT32;
+		vp = AP_Param::find(key, &var_type);
+		if (vp == nullptr)
+		{
+			return;
+		}
+		old_value = vp->cast_to_float(var_type);
+		lock_stat=old_value;
+
+		//get chip id
+		id=*(uint32_t*)(0x1FFF7A10);
+
+		//get gps type1
+		memset(key,0,AP_MAX_NAME_SIZE+1);
+		strcpy(key, "GPS_TYPE");
+		var_type=AP_PARAM_INT8;
+		vp = AP_Param::find(key, &var_type);
+		if (vp == nullptr) {
+			return;
+		}
+		old_value = vp->cast_to_float(var_type);
+		type1 = old_value;
+
+		//get gps type2
+		memset(key, 0, AP_MAX_NAME_SIZE + 1);
+		strcpy(key, "GPS_TYPE2");
+		var_type=AP_PARAM_INT8;
+		vp = AP_Param::find(key, &var_type);
+		if (vp == nullptr) {
+			return;
+		}
+		old_value = vp->cast_to_float(var_type);
+		type2 = old_value;
+
+		//init random buf
+		for(uint8_t i=0;i<96;i++)
+		{
+			data.data[i]=get_random16();
+		}
+		save_p=(get_random16() & 70)+1;
+		data.data[0]=save_p;
+
+		//push data
+		memcpy(data.data+save_p,&lock_stat,4);
+		memcpy(data.data+save_p+4,&id,4);
+		memcpy(data.data+save_p+8,&type1,1);
+		memcpy(data.data+save_p+9,&type2,1);
+
+		mavlink_msg_data96_send(chan, 101, get_random16(), data.data);
+
+		break;
+	case 102:
+		save_p=data.data[0];
+		memcpy(&lock_stat,data.data+save_p,4);
+		memcpy(&id,data.data+save_p+4,4);
+		memcpy(&type1,data.data+save_p+8,1);
+		memcpy(&type2,data.data+save_p+9,1);
+
+		if(id==*(uint32_t*)(0x1FFF7A10))
+		{
+			//save lock state
+	    	memset(key,0,AP_MAX_NAME_SIZE+1);
+	    	strcpy(key, "USER_LOCK");
+	    	AP_Param::set_and_save_by_name(key, lock_stat);
+		}
+
+		break;
+	default:
+		AP_SerialManager *serial_manager = AP_SerialManager::get_instance();
+		if (serial_manager != 0) {
+			AP_HAL::UARTDriver *uart_tx;
+			uart_tx = serial_manager->find_serial(
+					AP_SerialManager::SerialProtocol_DATA96_UART_SEND, 0);
+			if (uart_tx != nullptr) {
+				uart_tx->write(data.data, data.len);
 			}
+		}
+		break;
 	}
-#endif
 }
 
 void GCS_MAVLINK::handle_vision_position_delta(mavlink_message_t *msg)
