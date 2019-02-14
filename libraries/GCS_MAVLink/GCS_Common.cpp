@@ -885,6 +885,24 @@ void GCS_MAVLINK::packetReceived(const mavlink_status_t &status,
     }
 }
 
+/*
+ encrypt a buffer thaat  send out to MAVLink channel
+ */
+unsigned char comm_receive_decrypt(uint8_t buffer)
+{
+#define passwd_num	5
+    uint8_t passwd[passwd_num] =
+    { 1, 2, 3, 4, 5 };
+    uint8_t i;
+    uint8_t decrypt_buf;
+    decrypt_buf = buffer;
+    for (i = 0; i < passwd_num; i++)
+    {
+        decrypt_buf = decrypt_buf ^ passwd[i];
+    }
+    return decrypt_buf;
+}
+
 void
 GCS_MAVLINK::update(uint32_t max_time_us)
 {
@@ -902,7 +920,8 @@ GCS_MAVLINK::update(uint32_t max_time_us)
     uint16_t nbytes = comm_get_available(chan);
     for (uint16_t i=0; i<nbytes; i++)
     {
-        const uint8_t c = (uint8_t)_port->read();
+    		  uint8_t c = (uint8_t)_port->read();
+
         const uint32_t protocol_timeout = 4000;
         
         if (alternative.handler &&
@@ -927,6 +946,10 @@ GCS_MAVLINK::update(uint32_t max_time_us)
         }
 
         bool parsed_packet = false;
+
+#ifdef MAVLINK_ENCRYPTION
+        c = comm_receive_decrypt(c);
+#endif
 
         // Try to get a new message
         if (mavlink_parse_char(chan, c, &msg, &status)) {
