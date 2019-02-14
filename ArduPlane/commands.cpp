@@ -41,8 +41,14 @@ void Plane::set_next_WP(const struct Location &loc)
 
     // convert relative alt to absolute alt
     if (next_WP_loc.flags.relative_alt) {
-        next_WP_loc.flags.relative_alt = false;
-        next_WP_loc.alt += home.alt;
+    	next_WP_loc.flags.relative_alt = false;
+    	if(g.m_alt_offset==0)
+    	{
+    		next_WP_loc.alt += home.alt;
+    	}else
+    	{
+    		next_WP_loc.alt += g.m_alt_offset*100;
+    	}
     }
 
     // are we already past the waypoint? This happens when we jump

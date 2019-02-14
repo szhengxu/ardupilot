@@ -2439,7 +2439,9 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     //  individual commands will then be sent from the GCS using the MAVLINK_MSG_ID_MISSION_ITEM message
     case MAVLINK_MSG_ID_MISSION_COUNT:          // MAV ID: 44
     {
-        handle_mission_count(*_mission, msg);
+    	handle_mission_count(*_mission, msg);
+        char key[AP_MAX_NAME_SIZE+1]={"M_ALT_OFFSET"};
+        AP_Param::set_and_save_by_name(key, 0);
         break;
     }
 

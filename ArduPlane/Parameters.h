@@ -73,6 +73,7 @@ public:
         k_param_crosstrack_min_distance, // unused
         k_param_rudder_steer, // unused
         k_param_throttle_nudge,
+        k_param_m_alt_offset,
         k_param_alt_offset,
         k_param_ins,                // libraries/AP_InertialSensor variables
         k_param_takeoff_throttle_min_speed,
@@ -437,6 +438,7 @@ public:
 
     // Navigational maneuvering limits
     //
+    AP_Int16 m_alt_offset;
     AP_Int16 alt_offset;
     AP_Int16 acro_roll_rate;
     AP_Int16 acro_pitch_rate;

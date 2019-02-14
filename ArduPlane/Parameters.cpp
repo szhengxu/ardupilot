@@ -234,6 +234,15 @@ const AP_Param::Info Plane::var_info[] = {
     // @User: Advanced
     GSCALAR(alt_control_algorithm, "ALT_CTRL_ALG",    ALT_CONTROL_DEFAULT),
 
+    // @Param: M_ALT_OFFSET
+    // @DisplayName: Altitude offset o mission
+    // @Description: This is added to the target altitude in automatic flight. It can be used to add a global altitude offset to a mission
+    // @Units: m
+    // @Range: -32767 32767
+    // @Increment: 1
+    // @User: Advanced
+    GSCALAR(m_alt_offset, "M_ALT_OFFSET",                 0),
+
     // @Param: ALT_OFFSET
     // @DisplayName: Altitude offset
     // @Description: This is added to the target altitude in automatic flight. It can be used to add a global altitude offset to a mission
