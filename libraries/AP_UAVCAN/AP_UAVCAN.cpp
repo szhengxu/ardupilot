@@ -41,6 +41,7 @@ extern const AP_HAL::HAL& hal;
 
 #define debug_uavcan(level, fmt, args...) do { if ((level) <= AP_BoardConfig_CAN::get_can_debug()) { hal.console->printf(fmt, ##args); }} while (0)
 
+//#define PRINTF_ENABLE
 // Translation of all messages from UAVCAN structures into AP structures is done
 // in AP_UAVCAN and not in corresponding drivers.
 // The overhead of including definitions of DSDL is very high and it is best to
@@ -189,6 +190,7 @@ static void gnss_fix_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_gps_state(msg.getSrcNodeID().get());
+#ifdef PRINTF_ENABLE
     static uint32_t tnow1 = AP_HAL::micros();
 	if ((AP_HAL::millis() - tnow1) > 220)
 	{
@@ -201,6 +203,7 @@ static void gnss_fix_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
 				ms & 0x3e7);
 		}
 	tnow1 = AP_HAL::millis();
+#endif
 }
 
 static void gnss_fix_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::gnss::Fix>& msg)
@@ -229,7 +232,7 @@ static void gnss_aux_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
     if (!uavcan::isNaN(msg.vdop)) {
         state->vdop = msg.vdop * 100.0;
     }
-
+#ifdef PRINTF_ENABLE
     static uint32_t tnow1 = AP_HAL::micros();
     if ((AP_HAL::millis() - tnow1) > 220)
     {
@@ -242,6 +245,7 @@ static void gnss_aux_cb(const uavcan::ReceivedDataStructure<uavcan::equipment::g
 				ms & 0x3e7);
     }
     tnow1 = AP_HAL::millis();
+#endif
 }
 
 static void gnss_aux_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::gnss::Auxiliary>& msg)
@@ -296,6 +300,7 @@ static void magnetic_cb_2(const uavcan::ReceivedDataStructure<uavcan::equipment:
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_mag_state(msg.getSrcNodeID().get(), msg.sensor_id);
+#ifdef PRINTF_ENABLE
     static uint32_t tnow1 = AP_HAL::micros();
     if ((AP_HAL::millis() - tnow1) > 28)
     {
@@ -309,6 +314,7 @@ static void magnetic_cb_2(const uavcan::ReceivedDataStructure<uavcan::equipment:
 				ms & 0x3e7);
     }
     tnow1 = AP_HAL::millis();
+#endif
 }
 
 static void magnetic_cb_2_0(const uavcan::ReceivedDataStructure<uavcan::equipment::ahrs::MagneticFieldStrength2>& msg)
@@ -389,7 +395,7 @@ static void battery_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
 
     // after all is filled, update all listeners with new data
     ap_uavcan->update_bi_state((uint16_t) msg.battery_id);
-
+#ifdef PRINTF_ENABLE
     static uint32_t tnow1 = AP_HAL::micros();
 	{
     	uint32_t ms = AP_HAL::millis();
@@ -401,6 +407,7 @@ static void battery_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
     			ms & 0x3e7);
 	}
 	tnow1 = AP_HAL::millis();
+#endif
 }
 
 static void battery_info_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::power::BatteryInfo>& msg)
@@ -431,6 +438,7 @@ static void airdata_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
     msg.covariance.unpackSquareMatrix(state->covariance);
     
     ap_uavcan->update_airspeed_state(msg.getSrcNodeID().get());
+#ifdef PRINTF_ENABLE
     static uint32_t tnow1 = AP_HAL::micros();
     if ((AP_HAL::millis() - tnow1) > 58)
     {
@@ -443,6 +451,7 @@ static void airdata_info_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
 				ms & 0x3e7);
     }
     tnow1 = AP_HAL::millis();
+#endif
 }
 
 static void airdata_info_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::air_data::RawAirData>& msg)
@@ -470,14 +479,14 @@ static void servo_status_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
     	}
     }
 
-
+#ifdef PRINTF_ENABLE
     if(msg.actuator_id == id[0])
     {
     	static uint32_t tnow1 = AP_HAL::micros();
-
     	if((AP_HAL::millis()-tnow1)>30)
     	{
     		uint32_t ms=AP_HAL::millis();
+
     		printf("servo id:%d delta_time:%d %2dh %2dm %2ds %3dms \n",
     				msg.actuator_id,
     				ms-tnow1,
@@ -540,6 +549,7 @@ static void servo_status_st_cb(const uavcan::ReceivedDataStructure<uavcan::equip
     	}
     	tnow4=AP_HAL::millis();
     }
+#endif
 }
 
 static void servo_status_st_cb0(const uavcan::ReceivedDataStructure<uavcan::equipment::actuator::Status>& msg)
