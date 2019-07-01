@@ -486,6 +486,87 @@ void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_tar
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
 
+#if 0
+//Wite sum PIPS
+struct PACKED log_PIPS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us; 	//Q
+    uint16_t num;		//H
+    uint8_t  id_type;	//B
+    uint16_t data[96];	//ZZZ
+};
+//Z   : char[64]
+
+#define PIPS_TYPE   LOG_PIPS_DATA
+#define PIPS_LEN    sizeof(log_PIPS)
+#define PIPS_NAME   "PIPS"
+#define PIPS_FMT    "QHBZZZ"
+#define PIPS_LABELS "TimeUS,Num,type,1,2,3"
+#define PIPS_UNITS  "s-----"
+#define PIPS_MULTS  "F-----"
+
+// Write sum PIPS
+void Copter::Log_Write_PIPS(uint16_t count, uint8_t count_type, uint16_t *pips_data, uint8_t sum)
+{
+    struct log_PIPS pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_PIPS_DATA),
+        time_us : AP_HAL::micros64(),
+        num     : count,
+        id_type	: count_type
+    };
+    memcpy(pkt.data,pips_data,sum*2);
+    DataFlash.WriteBlock(&pkt, sizeof(pkt));
+}
+#else
+//Wite sum PIPS
+struct PACKED log_PIPS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us; 	//Q
+    uint16_t num;		//H 1-65535
+    uint8_t  id_type;	//B 20-40
+    uint16_t data[48];	//QQQQQQQQQQQQ
+};
+//Z   : char[64]
+
+#define PIPS_TYPE   LOG_PIPS_DATA
+#define PIPS_LEN    sizeof(log_PIPS)
+#define PIPS_NAME   "PIPS"
+#define PIPS_FMT    "QHBQQQQQQQQQQQQ"
+#define PIPS_LABELS "TimeUS,Num,type,1,2,3,4,5,6,7,8,9,10,11,12"
+#define PIPS_UNITS  "s--------------"
+#define PIPS_MULTS  "F--------------"
+
+// Write sum PIPS
+void Copter::Log_Write_PIPS(uint16_t log_count, uint8_t count_type, uint8_t *pips_data, uint8_t sum)
+{
+	int16_t cp_count=sum;
+	uint8_t temp=0;
+
+	temp=count_type*2;
+	struct log_PIPS pkt1 = {
+		LOG_PACKET_HEADER_INIT(LOG_PIPS_DATA),
+		time_us : AP_HAL::micros64(),
+		num     : log_count,
+		id_type	: temp
+	};
+	memcpy(pkt1.data,pips_data,96);
+	DataFlash.WriteBlock(&pkt1, sizeof(pkt1));
+
+	temp=count_type*2+1;
+	cp_count-=96;
+	struct log_PIPS pkt2 = {
+		LOG_PACKET_HEADER_INIT(LOG_PIPS_DATA),
+		time_us : AP_HAL::micros64(),
+		num     : log_count,
+		id_type	: temp
+	};
+	memset(pkt2.data,0,96);
+	memcpy(pkt2.data,pips_data+96,cp_count);
+	DataFlash.WriteBlock(&pkt2, sizeof(pkt2));
+}
+#endif
+
+
 // type and unit information can be found in
 // libraries/DataFlash/Logstructure.h; search for "log_Units" for
 // units and "Format characters" for field type information
@@ -531,6 +612,7 @@ const struct LogStructure Copter::log_structure[] = {
 #endif
     { LOG_GUIDEDTARGET_MSG, sizeof(log_GuidedTarget),
       "GUID",  "QBffffff",    "TimeUS,Type,pX,pY,pZ,vX,vY,vZ", "s-mmmnnn", "F-000000" },
+    { LOG_PIPS_DATA, PIPS_LEN, PIPS_NAME, PIPS_FMT, PIPS_LABELS, PIPS_UNITS, PIPS_MULTS},
 };
 
 void Copter::Log_Write_Vehicle_Startup_Messages()

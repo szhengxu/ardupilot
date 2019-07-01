@@ -1352,6 +1352,32 @@ void GCS::data_stream_send()
     }
 }
 
+void GCS::pips_send(uint8_t type,uint8_t *data,uint8_t length)
+{
+#if 1
+    for (uint8_t i=0; i<num_gcs(); i++) {
+        if (chan(i).initialised) {
+            chan(i).pips_send(type,data,length);
+        }
+    }
+#else
+    chan(1).pips_send(type,data,length);
+#endif
+}
+
+void GCS::gas_flow_send(uint8_t type,uint8_t *data,uint8_t length)
+{
+#if 1
+    for (uint8_t i=0; i<num_gcs(); i++) {
+        if (chan(i).initialised) {
+            chan(i).gas_flow_send(type,data,length);
+        }
+    }
+#else
+    chan(1).gas_flow_send(type,data,length);
+#endif
+}
+
 void GCS::update(void)
 {
     for (uint8_t i=0; i<num_gcs(); i++) {
@@ -2056,9 +2082,10 @@ void GCS_MAVLINK::handle_set_gps_global_origin(const mavlink_message_t *msg)
 /*
   handle a DATA96 message
  */
+extern uint8_t on_off_switck;
 void GCS_MAVLINK::handle_data_packet(mavlink_message_t *msg)
 {
-#if HAL_RCINPUT_WITH_AP_RADIO
+#if HAL_RCINPUT_WITH_AP_RADIO && 0
     mavlink_data96_t m;
     mavlink_msg_data96_decode(msg, &m);
     switch (m.type) {
@@ -2075,6 +2102,40 @@ void GCS_MAVLINK::handle_data_packet(mavlink_message_t *msg)
         // unknown
         break;
     }
+#endif
+
+#if 1
+    // UESTC Start
+	mavlink_data96_t data96;
+	mavlink_msg_data96_decode(msg, &data96);
+
+	AP_SerialManager *serial_manager = AP_SerialManager::get_instance();
+	if (serial_manager != 0 && data96.type==100) {
+		AP_HAL::UARTDriver *uart_tx;
+		uart_tx = serial_manager->find_serial(AP_SerialManager::SerialProtocol_PIPS, 0);
+		if (uart_tx != nullptr) {
+				uart_tx->write(data96.data, data96.len);
+			}
+	}
+	if (serial_manager != 0 && data96.type==110) {
+		AP_HAL::UARTDriver *uart_tx;
+		uart_tx = serial_manager->find_serial(AP_SerialManager::SerialProtocol_GAS_FLOW, 0);
+		if (uart_tx != nullptr) {
+				uart_tx->write(data96.data, data96.len);
+			}
+	}
+
+	if(data96.type==101)
+	{
+		if(data96.data[0]==1)
+		{
+			on_off_switck=1;
+		}else if(data96.data[0]==0)
+		{
+			on_off_switck=0;
+		}
+	}
+	// UESTC End
 #endif
 }
 
@@ -3091,6 +3152,16 @@ void GCS_MAVLINK::data_stream_send(void)
             break;
         }
     }
+}
+
+void GCS_MAVLINK::pips_send(uint8_t type,uint8_t *data,uint8_t length)
+{
+	mavlink_msg_data96_send(chan, type, length, data);
+}
+
+void GCS_MAVLINK::gas_flow_send(uint8_t type,uint8_t *data,uint8_t length)
+{
+	mavlink_msg_data96_send(chan, type, length, data);
 }
 
 /*

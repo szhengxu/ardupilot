@@ -102,6 +102,8 @@ public:
         SerialProtocol_ESCTelemetry = 16,
         SerialProtocol_Devo_Telem = 17,
         SerialProtocol_OpticalFlow = 18,
+        SerialProtocol_PIPS = 20,
+        SerialProtocol_GAS_FLOW = 21,
     };
 
     // get singleton instance

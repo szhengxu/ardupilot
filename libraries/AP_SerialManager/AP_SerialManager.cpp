@@ -271,6 +271,16 @@ void AP_SerialManager::init()
                     state[i].uart->begin(map_baudrate(state[i].baud), 30, 30);
                     state[i].uart->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
                     break;
+                case SerialProtocol_PIPS:
+                    state[i].uart->begin(map_baudrate(state[i].baud),
+                                         2148,
+                                         128);
+                	break;
+                case SerialProtocol_GAS_FLOW:
+                    state[i].uart->begin(map_baudrate(state[i].baud),
+                                         128,
+                                         128);
+                	break;
             }
         }
     }
