@@ -41,7 +41,11 @@ void Copter::userhook_50Hz()
 			for (uint16_t i = 0; i < uart_count; i++) {
 				data192[i] = user_uart1->read();
 			}
+#if 0
 			if(cmd_count<=5 || uart_count<20){
+#else
+			if(cmd_count<=1 || uart_count<20){
+#endif
 				//rx cmd callback
 				data192[80]=send_count;
 				send_count++;
@@ -73,6 +77,7 @@ void Copter::userhook_50Hz()
 		if((AP_HAL::millis() - last_time) > 1000 && on_off_switck==1){
 			log_count++;
 			last_time=AP_HAL::millis();
+#if 0
 			uint8_t str1[4] = {'#','A','0','\n'};
 			uint8_t str2[4] = {'#','C','0','\n'};
 			uint8_t str3[4] = {'#','D','0','\n'};
@@ -80,6 +85,7 @@ void Copter::userhook_50Hz()
 			uint8_t str5[7] = {'#','T','1','2','3','4','\n'};
 			uint8_t str6[4] = {'#','K','\n'};
 			uint8_t str7[3] = {'#','E','\n'};
+			uint8_t str8[3] = {'#','Q','\n'};
 			switch(cmd_count)
 			{
 			case 0:user_uart1->write(str1, 4);cmd_count++;break;
@@ -91,6 +97,18 @@ void Copter::userhook_50Hz()
 			case 6:user_uart1->write(str7, 3);type=8;break;
 			default:break;
 			}
+#else
+			uint8_t str6[4] = {'#','K','\n'};
+			uint8_t str7[3] = {'#','E','\n'};
+			uint8_t str8[3] = {'#','Q','\n'};
+			switch(cmd_count)
+			{
+			case 0:user_uart1->write(str8, 3);cmd_count++;break;
+			case 1:user_uart1->write(str6, 3);cmd_count++;break;
+			case 2:user_uart1->write(str7, 3);type=8;break;
+			default:break;
+			}
+#endif
 		}
 	}
 
@@ -108,7 +126,7 @@ void Copter::userhook_50Hz()
 				//rx cmd callback
 				data96[80]=send_count;
 				send_count++;
-				gcs().gas_flow_send(1, data96, uart_count);
+				gcs().gas_flow_send(2, data96, uart_count);
 			}
 		}
 
