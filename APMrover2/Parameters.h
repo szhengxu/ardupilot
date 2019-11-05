@@ -3,7 +3,6 @@
 #include <AP_Common/AP_Common.h>
 
 #include "RC_Channel.h"
-#include "AC_Sprayer/AC_Sprayer.h"
 #include "AP_Rally.h"
 
 // Global parameter class.
@@ -347,9 +346,6 @@ public:
     // loiter type
     AP_Int8 loit_type;
     AP_Float loit_radius;
-
-    // Sprayer
-    AC_Sprayer sprayer;
 
 #if GRIPPER_ENABLED
     AP_Gripper gripper;
