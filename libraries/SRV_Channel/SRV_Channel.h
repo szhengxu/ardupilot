@@ -17,7 +17,6 @@
 #include <AP_Param/AP_Param.h>
 #include <AP_RCMapper/AP_RCMapper.h>
 #include <AP_Common/Bitmask.h>
-#include <AP_Volz_Protocol/AP_Volz_Protocol.h>
 #include <AP_RobotisServo/AP_RobotisServo.h>
 #include <AP_SBusOut/AP_SBusOut.h>
 #include <AP_BLHeli/AP_BLHeli.h>
@@ -498,10 +497,6 @@ private:
     // this static arrangement is to avoid having static objects in AP_Param tables
     static SRV_Channel *channels;
     static SRV_Channels *_singleton;
-
-    // support for Volz protocol
-    AP_Volz_Protocol volz;
-    static AP_Volz_Protocol *volz_ptr;
 
     // support for SBUS protocol
     AP_SBusOut sbus;
