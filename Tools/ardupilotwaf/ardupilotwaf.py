@@ -70,7 +70,6 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'AP_RAMTRON',
     'AP_RCProtocol',
     'AP_Radio',
-    'AP_TempCalibration',
     'AP_VisualOdom',
     'AP_BLHeli',
     'AP_ROMFS',
