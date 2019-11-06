@@ -19,7 +19,6 @@ def build(bld):
             'AP_Stats',
             'AP_Beacon',
             'AP_AdvancedFailsafe',
-            'AP_WheelEncoder',
             'AP_SmartRTL',
             'AC_Fence',
             'AC_AttitudeControl',
