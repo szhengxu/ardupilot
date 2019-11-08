@@ -370,15 +370,6 @@ void Plane::stabilize()
     }
     float speed_scaler = get_speed_scaler();
 
-    if (quadplane.in_tailsitter_vtol_transition()) {
-        /*
-          during transition to vtol in a tailsitter try to raise the
-          nose rapidly while keeping the wings level
-         */
-        nav_pitch_cd = constrain_float((quadplane.tailsitter.transition_angle+5)*100, 5500, 8500),
-        nav_roll_cd = 0;
-    }
-
     uint32_t now = AP_HAL::millis();
     if (now - last_stabilize_ms > 2000) {
         // if we haven't run the rate controllers for 2 seconds then
@@ -403,8 +394,7 @@ void Plane::stabilize()
                 control_mode == &mode_qland ||
                 control_mode == &mode_qrtl ||
                 control_mode == &mode_qacro ||
-                control_mode == &mode_qautotune) &&
-               !quadplane.in_tailsitter_vtol_transition()) {
+                control_mode == &mode_qautotune)) {
         quadplane.control_run();
     } else {
         if (g.stick_mixing == STICK_MIXING_FBW && control_mode != &mode_stabilize) {
@@ -637,10 +627,6 @@ void Plane::update_load_factor(void)
     }
     if (fly_inverted()) {
         // no roll limits when inverted
-        return;
-    }
-    if (quadplane.tailsitter_active()) {
-        // no limits while hovering
         return;
     }
        

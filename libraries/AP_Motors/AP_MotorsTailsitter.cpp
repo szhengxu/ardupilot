@@ -52,9 +52,6 @@ void AP_MotorsTailsitter::init(motor_frame_class frame_class, motor_frame_type f
     // left servo defaults to servo output 4
     SRV_Channels::set_aux_channel_default(SRV_Channel::k_tiltMotorLeft, CH_4);
     SRV_Channels::set_angle(SRV_Channel::k_tiltMotorLeft, SERVO_OUTPUT_RANGE);
-
-    // record successful initialisation if what we setup was the desired frame_class
-    _flags.initialised_ok = (frame_class == MOTOR_FRAME_TAILSITTER);
 }
 
 

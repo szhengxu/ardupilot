@@ -75,11 +75,6 @@ public:
       return true if we are in a transition to fwd flight from hover
     */
     bool in_transition(void) const;
-
-    /*
-      return true if we are a tailsitter transitioning to VTOL flight
-    */
-    bool in_tailsitter_vtol_transition(void) const;
     
     bool handle_do_vtol_transition(enum MAV_VTOL_STATE state);
 
@@ -105,27 +100,6 @@ public:
 
     // see if we are flying from vtol point of view
     bool is_flying_vtol(void) const;
-
-    // return true when tailsitter frame configured
-    bool is_tailsitter(void) const;
-
-    // return true when flying a tailsitter in VTOL
-    bool tailsitter_active(void);
-    
-    // create outputs for tailsitters
-    void tailsitter_output(void);
-
-    // handle different tailsitter input types
-    void tailsitter_check_input(void);
-    
-    // check if we have completed transition to fixed wing
-    bool tailsitter_transition_fw_complete(void);
-
-    // check if we have completed transition to vtol
-    bool tailsitter_transition_vtol_complete(void) const;
-
-    // account for surface speed scaling in hover
-    void tailsitter_speed_scaling(void);
     
     // user initiated takeoff for guided mode
     bool do_user_takeoff(float takeoff_altitude);
@@ -358,7 +332,6 @@ private:
     enum {
         TRANSITION_AIRSPEED_WAIT,
         TRANSITION_TIMER,
-        TRANSITION_ANGLE_WAIT_FW,
         TRANSITION_ANGLE_WAIT_VTOL,
         TRANSITION_DONE
     } transition_state;
@@ -433,35 +406,7 @@ private:
         float current_throttle;
         bool motors_active:1;
     } tilt;
-
-    enum tailsitter_input {
-        TAILSITTER_INPUT_MULTICOPTER = 0,
-        TAILSITTER_INPUT_PLANE       = 1,
-        TAILSITTER_INPUT_BF_ROLL_M   = 2,
-        TAILSITTER_INPUT_BF_ROLL_P   = 3,
-    };
-
-    enum tailsitter_mask {
-        TAILSITTER_MASK_AILERON  = 1,
-        TAILSITTER_MASK_ELEVATOR = 2,
-        TAILSITTER_MASK_THROTTLE = 4,
-        TAILSITTER_MASK_RUDDER   = 8,
-    };
     
-    // tailsitter control variables
-    struct {
-        AP_Int8 transition_angle;
-        AP_Int8 input_type;
-        AP_Int8 input_mask;
-        AP_Int8 input_mask_chan;
-        AP_Float vectored_forward_gain;
-        AP_Float vectored_hover_gain;
-        AP_Float vectored_hover_power;
-        AP_Float throttle_scale_max;
-        AP_Float max_roll_angle;
-        AP_Int16 motor_mask;
-    } tailsitter;
-
     // the attitude view of the VTOL attitude controller
     AP_AHRS_View *ahrs_view;
 

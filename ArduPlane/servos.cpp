@@ -814,8 +814,7 @@ void Plane::servos_output(void)
     // support twin-engine aircraft
     servos_twin_engine_mix();
 
-    // cope with tailsitters and bicopters
-    quadplane.tailsitter_output();
+    // cope with bicopters
     quadplane.tiltrotor_bicopter();
 
     // the mixers need pwm to be calculated now
