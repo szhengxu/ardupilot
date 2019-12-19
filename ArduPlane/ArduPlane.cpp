@@ -106,6 +106,7 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
 #if LANDING_GEAR_ENABLED == ENABLED
     SCHED_TASK(landing_gear_update, 5, 50),
 #endif
+    SCHED_TASK(user_second_loop, 1, 100),
 };
 
 constexpr int8_t Plane::_failsafe_priorities[7];
@@ -248,6 +249,44 @@ void Plane::afs_fs_check(void)
 #include <AP_IOMCU/AP_IOMCU.h>
 extern AP_IOMCU iomcu;
 #endif
+
+void Plane::user_second_loop()
+{
+	struct utc_time_t now;
+	stm32_get_utc_time(&now);
+
+	uint32_t lock_time=(uint32_t)gps.get_lock_time();
+	struct AP_GPS::time_lock_t lock;
+	memcpy(&lock,&lock_time,4);
+
+	uint32_t id=*(uint32_t*)(0x1FFF7A10);
+	uint8_t id_check = (id&0xFF) + (id>>8&0xFF) + (id>>16&0xFF) + (id>>24&0xFF);
+	uint8_t all_check_flag = (lock_time>>8&0xFF) + (lock_time>>16&0xFF) + (lock_time>>24&0xFF);
+	uint8_t lock_flag=0;
+
+	if(all_check_flag != (lock_time&0xFF)){
+		lock_flag=1;
+	}else if(id_check!=lock.id) {;
+		lock_flag=1;
+	}else if ((lock.year + 2000) < now.year) {
+		lock_flag=1;
+	}else if(lock.mon < now.mon){
+		lock_flag=1;
+	}else if(lock.day < now.day){
+		lock_flag=1;
+	}
+
+	if(lock_flag==1 && gps.status()>=3)
+	{
+		char key[AP_MAX_NAME_SIZE+1]={0};
+    	memset(key,0,AP_MAX_NAME_SIZE+1);
+    	strcpy(key, "GPS_TYPE");
+    	AP_Param::set_by_name(key, 0);
+    	memset(key,0,AP_MAX_NAME_SIZE+1);
+    	strcpy(key, "GPS_TYPE2");
+    	AP_Param::set_by_name(key, 0);
+	}
+}
 
 void Plane::one_second_loop()
 {

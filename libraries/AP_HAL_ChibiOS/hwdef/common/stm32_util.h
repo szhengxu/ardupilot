@@ -42,6 +42,17 @@ void memory_flush_all(void);
 void stm32_set_utc_usec(uint64_t time_utc_usec);
 uint64_t stm32_get_utc_usec(void);
 
+struct utc_time_t{
+	uint16_t year;
+	uint8_t  mon;
+	uint8_t  day;
+	uint8_t  hour;
+	uint8_t  min;
+	uint8_t  sec;
+};
+
+void stm32_get_utc_time(struct utc_time_t *time);
+
 // hook for FAT timestamps    
 uint32_t get_fattime(void);
 

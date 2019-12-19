@@ -283,7 +283,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("BLEND_TC", 21, AP_GPS, _blend_tc, 10.0f),
 #endif
-
+    AP_GROUPINFO("TIME_LOCK", 22, AP_GPS, _time_lock, 0),
     AP_GROUPEND
 };
 

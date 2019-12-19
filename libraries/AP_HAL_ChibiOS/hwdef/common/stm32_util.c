@@ -179,6 +179,31 @@ static void parse_utc_seconds(uint64_t utc_sec, struct utc_tm *tm)
     tm->tm_mday = days + 1;
 }
 
+void stm32_get_utc_time(struct utc_time_t *time)
+{
+    if (utc_time_offset == 0) {
+        // return a fixed time
+    	time->year=1970;
+    }else
+    {
+		uint64_t utc_usec = stm32_get_utc_usec();
+		uint64_t utc_sec = utc_usec / 1000000UL;
+		struct utc_tm tm;
+		parse_utc_seconds(utc_sec, &tm);
+		time->year=tm.tm_year+1900;
+    	time->mon=tm.tm_mon+1;
+    	time->day=tm.tm_mday;
+    	time->hour=tm.tm_hour+8;
+    	time->min=tm.tm_min;
+    	time->sec=tm.tm_sec;
+    	if(time->hour >= 24)
+    	{
+    		time->hour-=24;
+    		time->day+=1;
+    	}
+    }
+}
+
 
 /*
   get time for fat filesystem. This is based on

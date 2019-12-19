@@ -166,6 +166,14 @@ public:
         int32_t  rtk_iar_num_hypotheses;   ///< Current number of integer ambiguity hypotheses
     };
 
+    struct PACKED time_lock_t{
+    	uint8_t  check;
+    	uint8_t  id;
+    	uint16_t day:5;
+    	uint16_t mon:4;
+    	uint16_t year:7;
+    };
+
     /// Startup initialisation.
     void init(const AP_SerialManager& serial_manager);
 
@@ -433,6 +441,10 @@ public:
         _force_disable_gps = disable;
     }
 
+    int32_t get_lock_time(void) {
+    	return _time_lock;
+    }
+
 protected:
 
     // configuration parameters
@@ -454,6 +466,7 @@ protected:
     AP_Int16 _delay_ms[GPS_MAX_RECEIVERS];
     AP_Int8 _blend_mask;
     AP_Float _blend_tc;
+    AP_Int32 _time_lock;
 
     uint32_t _log_gps_bit = -1;
 

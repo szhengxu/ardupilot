@@ -125,6 +125,7 @@
 #include <SITL/SITL.h>
 #endif
 
+#include <AP_HAL_ChibiOS/hwdef/common/stm32_util.h>
 /*
   main APM:Plane class
  */
@@ -821,6 +822,14 @@ private:
     // rudder mixing gain for differential thrust (0 - 1)
     float rudder_dt;
 
+    struct PACKED gps_time_lock_t {
+    	uint16_t year:7;
+    	uint16_t mon:4;
+    	uint16_t day:5;
+    	uint8_t lock_chip_id;
+    	uint8_t lock_crc;
+    };
+
     void adjust_nav_pitch_throttle(void);
     void update_load_factor(void);
     void send_fence_status(mavlink_channel_t chan);
@@ -975,6 +984,7 @@ private:
 #endif
     void update_optical_flow(void);
     void one_second_loop(void);
+    void user_second_loop(void);
     void airspeed_ratio_update(void);
     void compass_save(void);
     void update_logging1(void);
