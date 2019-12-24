@@ -811,6 +811,7 @@ private:
 #endif
     void Log_Write_Precland();
     void Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target);
+    void Log_Write_PIPS(uint16_t log_count, uint8_t count_type, uint8_t *pips_data, uint8_t sum);
     void Log_Write_Vehicle_Startup_Messages();
     void log_init(void);
 
